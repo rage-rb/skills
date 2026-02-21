@@ -1,0 +1,79 @@
+name: Publish config version manifest
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Generate manifest.json from git tags
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+
+          # List tags, keep only vX.Y.Z, strip leading v for numeric sorting, then compute max per X.Y.
+          # Output keeps v-prefix (e.g. "1.20": "v1.20.6").
+          git tag -l 'v*' \
+            | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' \
+            | sed 's/^v//' \
+            | jq -Rsc '
+                split("\n")
+                | map(select(length>0))
+                | map({
+                    v: .,
+                    major: (split(".")[0] | tonumber),
+                    minor: (split(".")[1] | tonumber),
+                    patch: (split(".")[2] | tonumber),
+                    key: (split(".")[0:2] | join("."))
+                  })
+                | group_by(.key)
+                | map({
+                    key: .[0].key,
+                    versions: (sort_by(.major,.minor,.patch) | map("v"+.v)),
+                    latest:   (sort_by(.major,.minor,.patch) | last | ("v"+.v))
+                  })
+                | {
+                    schema: 1,
+                    generated_at: (now | todateiso8601),
+                    commit: (env.GITHUB_SHA // ""),
+                    versions: (map({(.key): .latest}) | add)
+                  }
+              ' > dist/manifest.json
+
+          echo "Wrote dist/manifest.json"
+          cat dist/manifest.json
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
