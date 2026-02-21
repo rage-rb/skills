@@ -60,19 +60,15 @@ jobs:
           tar -czf "$ARTIFACT" SKILL.md references/
 
           # Create checksum file
-          sha256sum "$ARTIFACT" > "checksums.txt"
+          sha256sum "$ARTIFACT" > dist/checksums.txt
 
           gh release create "$TAG" \
             "$ARTIFACT" \
-            "${ARTIFACT}.sha256" \
+            dist/checksums.txt \
             --title "$TAG" \
             --notes "Release $TAG" \
             --verify-tag \
             $LATEST_FLAG
-
-          echo "Created release $TAG with assets:"
-          echo " - $(basename "$ARTIFACT")"
-          echo " - $(basename "${ARTIFACT}.sha256")"
 
       - name: Generate artifact attestation
         uses: actions/attest-build-provenance@v3
