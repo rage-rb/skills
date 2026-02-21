@@ -60,7 +60,7 @@ jobs:
           tar -czf "$ARTIFACT" SKILL.md references/
 
           # Create checksum file
-          sha256sum "$ARTIFACT" > "${ARTIFACT}.sha256"
+          sha256sum "$ARTIFACT" > "checksums.txt"
 
           gh release create "$TAG" \
             "$ARTIFACT" \
