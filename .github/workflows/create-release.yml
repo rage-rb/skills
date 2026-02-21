@@ -73,3 +73,8 @@ jobs:
           echo "Created release $TAG with assets:"
           echo " - $(basename "$ARTIFACT")"
           echo " - $(basename "${ARTIFACT}.sha256")"
+
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@v3
+        with:
+          subject-path: ${{ steps.release.outputs.artifact }}
