@@ -68,7 +68,6 @@ jobs:
             --title "$TAG" \
             --notes "Release $TAG" \
             --verify-tag \
-            --draft \
             $LATEST_FLAG
 
           echo "Created release $TAG with assets:"
