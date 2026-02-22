@@ -52,19 +52,17 @@ jobs:
             LATEST_FLAG="--latest=false"
           fi
 
-          mkdir -p dist
-
-          ARTIFACT="dist/skills.tar.gz"
+          ARTIFACT="skills.tar.gz"
           echo "artifact=$ARTIFACT" >> "$GITHUB_OUTPUT"
 
           tar -czf "$ARTIFACT" SKILL.md references/
 
           # Create checksum file
-          sha256sum "$ARTIFACT" > dist/checksums.txt
+          sha256sum "$ARTIFACT" > checksums.txt
 
           gh release create "$TAG" \
             "$ARTIFACT" \
-            dist/checksums.txt \
+            checksums.txt \
             --title "$TAG" \
             --notes "Release $TAG" \
             --verify-tag \
