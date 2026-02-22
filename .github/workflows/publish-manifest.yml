@@ -62,6 +62,21 @@ jobs:
           echo "Wrote dist/manifest.json"
           cat dist/manifest.json
 
+      - name: Generate index.html
+        run: |
+          cat > dist/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="utf-8">
+            <title>Rage Skills</title>
+          </head>
+          <body>
+            <p><a href="manifest.json">manifest.json</a></p>
+          </body>
+          </html>
+          EOF
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
