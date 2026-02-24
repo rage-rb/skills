@@ -69,6 +69,7 @@ Important known differences:
 5. Use `Rage::Cable` for real-time features.
 6. Keep API docs in controller comments with `Rage::OpenAPI` tags.
 7. Use structured logs and telemetry handlers for observability.
+8. Use serializers instead of `as_json` to serialize objects to JSON.
 
 ## Controllers
 
@@ -82,6 +83,7 @@ gem "actionpack", require: "action_controller/metal/strong_parameters"
 ```
 
 Without Strong Parameters, use standard Ruby:
+
 ```ruby
 # Strong Parameters
 params.require(:user).permit(:full_name, :dob)
@@ -156,106 +158,17 @@ See [EnqueueMiddlewareInterface](https://api.rage-rb.dev/EnqueueMiddlewareInterf
 
 ### OpenAPI Auto-Generation
 
-Generated from YARD-style controller comments:
+Generated from YARD-style controller comments. Mount the spec UI:
 
-```ruby
-class UsersController < ApplicationController
-  # Get user by ID
-  # @description Returns detailed user information including profile data.
-  # @param id {Integer} User ID
-  # @response {id: Integer, name: String, email: String}
-  # @response 404 {error: String}
-  def show
-    user = User.find(params[:id])
-    render json: user
-  end
-
-  # @request {name: String, email: String}
-  # @response 201 {id: Integer}
-  def create
-    # ...
-  end
-end
-```
-
-Mount spec UI:
 ```ruby
 Rage.routes.draw do
   mount Rage::OpenAPI.application, at: "/publicapi"
 end
 ```
 
-Use these tags first (most day-to-day cases):
+Common tags: summary comment, `@description`, `@param`, `@request`, `@response`, `@auth`, `@private`, `@deprecated`, `@title`/`@version`.
 
-- Summary line comment
-- `@description`
-- `@param`
-- `@request`
-- `@response`
-- `@auth`
-- `@private`
-- `@deprecated`
-- `@title` and `@version` (once, usually in `ApplicationController`)
-
-**Schema sources (in order of preference):**
-1. [Alba](https://github.com/okuramasafumi/alba) serializers or Active Record models — auto-generated from code, always in sync
-2. Shared refs in `config/openapi_components.yml` — for custom schemas not backed by a model/serializer
-3. Inline schemas — only for very simple cases with small objects
-
-**[Alba](https://github.com/okuramasafumi/alba) serializers:**
-
-```ruby
-class UserSerializer
-  include Alba::Resource
-  attributes :id, :name, :email
-  has_many :posts, resource: PostSerializer
-end
-
-class UsersController < ApplicationController
-  # @response UserSerializer
-  def show
-    render json: UserSerializer.new(User.find(params[:id]))
-  end
-end
-```
-
-**Shared refs example** — define reusable schemas in `config/openapi_components.yml`:
-```yaml
-# config/openapi_components.yml
-components:
-  schemas:
-    User:
-      type: object
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
-        email:
-          type: string
-    Error:
-      type: object
-      properties:
-        error:
-          type: string
-```
-
-Reference them in controllers using JSON Pointer syntax:
-```ruby
-class UsersController < ApplicationController
-  # Get user by ID
-  # @response 200 #/components/schemas/User
-  # @response 404 #/components/schemas/Error
-  def show
-    user = User.find(params[:id])
-    render json: user
-  end
-end
-```
-
-**IMPORTANT:** when updating parameters or serializers, ensure OpenAPI tags are updated to reflect the latest changes.
-
-For all tags, authentication, visibility limiting, and customization, load: https://rage-rb.dev/docs/openapi.md.
+For full behavior and advanced patterns, load `references/openapi.md` (auth schemes, class/action tag scope, global responses, visibility controls, namespace filtering, multiple specs, and `config.openapi.tag_resolver`).
 
 ### Logging & Observability
 
@@ -313,6 +226,7 @@ Load only the file needed for the current task.
 | `references/cable.md` | Implementing WebSockets/channels/connection auth, stream topology, protocol choices, multi-server cable setup |
 | `references/observability.md` | Wiring structured logging, external loggers, telemetry handlers, span-based instrumentation, global log context/tags |
 | `references/rspec.md` | Setting up and writing request and cable specs with `rage/rspec`, DB cleaner strategy, request helper usage |
+| `references/openapi.md` | Adding or updating OpenAPI documentation tags, configuring authentication schemes, schema sources, namespace filtering, tag customization |
 | `references/cookies-sessions.md` | Implementing cookies, encrypted cookies, sessions, required gems and system dependencies |
 
 ## Configuration
