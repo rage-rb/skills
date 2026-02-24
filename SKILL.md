@@ -1,5 +1,5 @@
 ---
-name: Rage Framework
+name: rage-framework
 description: Develop and maintain Rage apps (Gemfile includes `gem "rage-rb"`) - controllers, routing, deferred jobs, events, websockets, OpenAPI, logging/telemetry, sessions/cookies, and RSpec.
 ---
 
