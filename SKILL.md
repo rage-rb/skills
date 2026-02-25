@@ -7,21 +7,23 @@ description: Develop and maintain Rage apps (Gemfile includes `gem "rage-rb"`) -
 
 Rage is a fiber-based Ruby API framework with Rails-compatible ergonomics and a single-runtime model, fully integrated with Active Record.
 
-## Version Gate (Required)
+## Skills Sync (Required, Non-Blocking)
 
-This skill set is intended for Rage version `1.20.1`.
+Skills are versioned independently of Rage patch releases:
+
+- `skills.major.minor` maps to Rage `major.minor`
+- Patch versions may differ (for example Rage `1.20.1` with skills `1.20.6`)
+- Older compatible minor skills may still be valid if provided by Rage CLI policy
 
 Before doing implementation work:
 
 1. Run:
    ```bash
-   rage version
+   rage skills update --json
    ```
-2. If output is not exactly `1.20.1`, run:
-   ```bash
-   rage skills:update
-   ```
-3. Reload the skills file(s) before proceeding.
+2. If update succeeds, reload the skill file(s) before proceeding.
+3. If update fails (offline, registry unavailable, or no compatible remote match), continue with currently installed skills and briefly note that sync could not be completed.
+4. Treat only major-version incompatibility as blocking.
 
 ## Core Concept: Single-Runtime Model
 
