@@ -100,6 +100,30 @@ params.fetch(:user).slice(:full_name, :dob)
 
 Check [RageController::API](https://api.rage-rb.dev/RageController/API) for all available controller methods and their arguments.
 
+### Rendering Templates (HTML)
+
+Rage is API-first, but controllers can render any output format. The key requirement is setting the correct `content-type` header.
+
+Use ERB manually:
+
+```ruby
+def index
+  template = ERB.new(Rage.root.join("app/views/index.html.erb").read)
+  render plain: template.result
+  headers["content-type"] = "text/html"
+end
+```
+
+Set HTML content type at controller level (`after_action` or `around_action`):
+
+```ruby
+after_action { headers["content-type"] = "text/html" }
+
+def index
+  render plain: MyPhlexComponent.new.call
+end
+```
+
 ## Concurrent I/O with Fibers
 
 Execute multiple I/O operations in parallel:
