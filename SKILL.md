@@ -95,10 +95,39 @@ params.fetch(:user).slice(:full_name, :dob)
 ```
 
 **rendering** is API-focused with signatures:
-- `render(json: nil, plain: nil, status: nil)`
+- `render(json: nil, plain: nil, status: nil, sse: nil)`
 - `head(status)`
 
 Check [RageController::API](https://api.rage-rb.dev/RageController/API) for all available controller methods and their arguments.
+
+### Rendering SSE
+
+Streams via enumerators:
+
+```ruby
+stream = Enumerator.new do |y|
+  "Hello, world!".each_char do |ch|
+    sleep 1
+    y << ch
+  end
+end
+
+render sse: stream
+```
+
+One-off updates via regular objects:
+
+```ruby
+render sse: { data: "Hello, world!" }
+```
+
+Use `Rage::SSE.message` for additional SSE fields:
+
+```ruby
+render sse: Rage::SSE.message({ data: "Hello, world!" }, event: "data_event", id: 1, retry: 10_000)
+```
+
+With streams and one-off updates, Rage closes the connection automatically. With procs, you manage the connection yourself.
 
 ### Rendering Templates (HTML)
 
