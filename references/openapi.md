@@ -278,6 +278,12 @@ Custom scheme name:
 # @auth authenticate_by_token UserAuth
 ```
 
+Shared references:
+
+```ruby
+# @auth #/components/securitySchemes/BasicAuth
+```
+
 ## Visibility and Namespace Filtering
 
 Hide endpoints from public docs:
