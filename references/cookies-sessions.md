@@ -39,6 +39,19 @@ class SessionsController < ApplicationController
 end
 ```
 
+### Signed Cookies
+
+Signed cookies are tamper-proof but still readable by clients:
+
+```ruby
+# Write signed cookie
+cookies.signed[:user_id] = 123
+
+# Read signed cookie
+cookies.signed[:user_id]
+# => 123
+```
+
 ### Encrypted Cookies
 
 Encrypted cookies are both tamper-proof and unreadable by clients:
