@@ -58,10 +58,10 @@ Encrypted cookies are both tamper-proof and unreadable by clients:
 
 ```ruby
 # Write encrypted cookie
-cookies.encrypted[:sensitive_data] = { account_id: 123, role: "admin" }
+cookies.encrypted[:sensitive_data] = { account_id: 123, role: "admin" }.to_json
 
 # Read encrypted cookie
-data = cookies.encrypted[:sensitive_data]
+data = JSON.parse(cookies.encrypted[:sensitive_data])
 # => { account_id: 123, role: "admin" }
 ```
 
