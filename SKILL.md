@@ -272,7 +272,7 @@ Load only the file needed for the current task.
 | `references/cable.md` | Implementing WebSockets/channels/connection auth, stream topology, protocol choices, multi-server cable setup |
 | `references/sse.md` | Implementing server-sent events, choosing between enumerator streams, one-off updates, unbounded streams, buffering, and Redis-backed multi-server fan-out |
 | `references/rendering.md` | Rendering HTML, configuring custom renderers like Phlex or Slim, and enabling Rails-like form actions for template-oriented apps |
-| `references/observability.md` | Wiring structured logging, external loggers, telemetry handlers, span-based instrumentation, global log context/tags |
+| `references/observability.md` | Wiring structured logging, centralized error reporting, external loggers, telemetry handlers, span-based instrumentation, global log context/tags |
 | `references/rspec.md` | Setting up and writing request and cable specs with `rage/rspec`, DB cleaner strategy, request helper usage |
 | `references/openapi.md` | Adding or updating OpenAPI documentation tags, configuring authentication schemes, schema sources, namespace filtering, tag customization |
 | `references/cookies-sessions.md` | Implementing cookies, encrypted cookies, sessions, required gems and system dependencies |

@@ -100,6 +100,80 @@ class ApplicationController < RageController::API
 end
 ```
 
+## Centralized Error Reporting
+
+Use `Rage::Errors` for framework-level exception reporting across Rage components. Controllers, deferred tasks, event subscribers, Cable apps, telemetry handlers, and SSE streams forward caught exceptions through this interface automatically.
+
+### Error Reporters
+
+Register one or more reporters in configuration:
+
+```ruby
+Rage.configure do
+  config.error_reporters << MyErrorReporter.new
+end
+```
+
+Each reporter must respond to `call` and accept the exception:
+
+```ruby
+class MyErrorReporter
+  def call(exception)
+    Sentry.capture_exception(exception)
+  end
+end
+```
+
+Reporters may also accept optional context:
+
+```ruby
+class MyErrorReporter
+  def call(exception, context:)
+    Sentry.capture_exception(exception, extra: context)
+  end
+end
+```
+
+All configured reporters are invoked for each reported exception.
+
+### Manual Reporting
+
+You can report an exception explicitly:
+
+```ruby
+Rage::Errors.report(exception)
+```
+
+Pass `context:` when the reporter needs extra structured data:
+
+```ruby
+Rage::Errors.report(exception, context: { user_id: user.id })
+```
+
+Reporter signatures are flexible: both `call(exception)` and `call(exception, context:)` are valid, whether or not `Rage::Errors.report` includes context.
+
+### Practical Guidance
+
+- Treat expected errors as application flow: handle them explicitly and log them.
+- Let unexpected errors bubble up so Rage can catch and report them automatically.
+- Use `Rage::Errors.report` only for cases where you need explicit reporting outside normal exception flow.
+
+Expected error example:
+
+```ruby
+unless user.valid_password?(params[:password])
+  Rage.logger.error "invalid password when signing in", user_id: user.id
+  # handle the error...
+end
+```
+
+Unexpected error example:
+
+```ruby
+# let database connection errors bubble up
+User.create!(user_params)
+```
+
 ## Telemetry
 
 Built-in span-based instrumentation for observing application behavior. Use telemetry to integrate with monitoring platforms, track performance metrics, debug production issues, or build custom observability solutions.
