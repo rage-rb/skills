@@ -1,6 +1,6 @@
 ---
 name: rage-framework
-description: Develop and maintain Rage apps (Gemfile includes `gem "rage-rb"`) - controllers, routing, deferred jobs, events, websockets, OpenAPI, logging/telemetry, sessions/cookies, and RSpec.
+description: Develop and maintain Rage apps (Gemfile includes `gem "rage-rb"`) - controllers, routing, server-sent events, deferred jobs, events, websockets, OpenAPI, logging/telemetry, sessions/cookies, and RSpec.
 ---
 
 # Rage Framework
@@ -68,7 +68,7 @@ Important known differences:
 2. Use concurrent I/O with Fibers for independent remote calls.
 3. Use `Rage::Deferred` for background work.
 4. Use typed events (`Data.define`) with `Rage::Events` for decoupled side effects.
-5. Use `Rage::Cable` for real-time features.
+5. Use `render sse:` for one-way HTTP streaming and `Rage::Cable` for bidirectional real-time features.
 6. Keep API docs in controller comments with `Rage::OpenAPI` tags.
 7. Use structured logs and telemetry handlers for observability.
 8. Use serializers instead of `as_json` to serialize objects to JSON.
@@ -102,32 +102,9 @@ Check [RageController::API](https://api.rage-rb.dev/RageController/API) for all 
 
 ### Rendering SSE
 
-Streams via enumerators:
+Use `render sse:` for one-way HTTP streaming. Rage supports three patterns: finite enumerator streams, one-off updates, and unbounded broadcast streams via `Rage::SSE.stream`.
 
-```ruby
-stream = Enumerator.new do |y|
-  "Hello, world!".each_char do |ch|
-    sleep 1
-    y << ch
-  end
-end
-
-render sse: stream
-```
-
-One-off updates via regular objects:
-
-```ruby
-render sse: { data: "Hello, world!" }
-```
-
-Use `Rage::SSE.message` for additional SSE fields:
-
-```ruby
-render sse: Rage::SSE.message({ data: "Hello, world!" }, event: "data_event", id: 1, retry: 10_000)
-```
-
-With streams and one-off updates, Rage closes the connection automatically. With procs, you manage the connection yourself.
+For implementation details, load `references/sse.md` (stream selection, `Rage::SSE.message`, object auto-JSON, ignored `nil` yields, buffering, Redis pubsub setup, keep-alives, graceful shutdown, and low-level proc access).
 
 ### Rendering Templates (HTML)
 
@@ -279,6 +256,7 @@ Load only the file needed for the current task.
 |---|---|
 | `references/events.md` | Designing domain events, subscriber architecture, deferred subscribers. Use in cases where domain events and event-driven architecture are beneficial. |
 | `references/cable.md` | Implementing WebSockets/channels/connection auth, stream topology, protocol choices, multi-server cable setup |
+| `references/sse.md` | Implementing server-sent events, choosing between enumerator streams, one-off updates, unbounded streams, buffering, and Redis-backed multi-server fan-out |
 | `references/observability.md` | Wiring structured logging, external loggers, telemetry handlers, span-based instrumentation, global log context/tags |
 | `references/rspec.md` | Setting up and writing request and cable specs with `rage/rspec`, DB cleaner strategy, request helper usage |
 | `references/openapi.md` | Adding or updating OpenAPI documentation tags, configuring authentication schemes, schema sources, namespace filtering, tag customization |

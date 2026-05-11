@@ -8,6 +8,7 @@ This repository follows the [Agent Skills](https://agentskills.io/home) specific
 
 These skills cover all major Rage framework features:
 
+- **SSE** - Streaming HTTP responses with Server-Sent Events
 - **Cable** - Building WebSocket applications with Action Cable compatibility
 - **OpenAPI** - Creating OpenAPI documentation for your API endpoints
 - **RSpec** - Writing and organizing RSpec tests for Rage applications
