@@ -58,6 +58,7 @@ Assume Rails-like defaults for common work, but verify edge behavior in Rage doc
 Important known differences:
 
 - Route helpers are not generated (`photos_path`, `photos_url` are unavailable).
+- `resources` / `resource` do not generate Rails-style `new` and `edit` actions unless `config.form_actions = true`.
 - Route constraints are host-only.
 - Wildcard routing is stricter (wildcard only at path end and unnamed).
 - `params` is a symbol-keyed Hash by default; Strong Parameters requires explicit `actionpack` setup.
@@ -108,27 +109,11 @@ For implementation details, load `references/sse.md` (stream selection, `Rage::S
 
 ### Rendering Templates (HTML)
 
-Rage is API-first, but controllers can render any output format. The key requirement is setting the correct `content-type` header.
+Rage is API-first, but controllers can render HTML and other formats when you set the correct `content-type` header.
 
-Use ERB manually:
+Use custom renderers via `config.renderer(...)` for reusable template systems, and enable `config.form_actions = true` for Rails-like form actions in template-oriented apps.
 
-```ruby
-def index
-  template = ERB.new(Rage.root.join("app/views/index.html.erb").read)
-  render plain: template.result
-  headers["content-type"] = "text/html"
-end
-```
-
-Set HTML content type at controller level (`after_action` or `around_action`):
-
-```ruby
-after_action { headers["content-type"] = "text/html" }
-
-def index
-  render plain: MyPhlexComponent.new.call
-end
-```
+For implementation details, load `references/rendering.md` (manual HTML rendering, custom renderer setup, controller-context access, Phlex and Slim examples, and `form_actions` guidance).
 
 ## Concurrent I/O with Fibers
 
@@ -257,6 +242,7 @@ Load only the file needed for the current task.
 | `references/events.md` | Designing domain events, subscriber architecture, deferred subscribers. Use in cases where domain events and event-driven architecture are beneficial. |
 | `references/cable.md` | Implementing WebSockets/channels/connection auth, stream topology, protocol choices, multi-server cable setup |
 | `references/sse.md` | Implementing server-sent events, choosing between enumerator streams, one-off updates, unbounded streams, buffering, and Redis-backed multi-server fan-out |
+| `references/rendering.md` | Rendering HTML, configuring custom renderers like Phlex or Slim, and enabling Rails-like form actions for template-oriented apps |
 | `references/observability.md` | Wiring structured logging, external loggers, telemetry handlers, span-based instrumentation, global log context/tags |
 | `references/rspec.md` | Setting up and writing request and cable specs with `rage/rspec`, DB cleaner strategy, request helper usage |
 | `references/openapi.md` | Adding or updating OpenAPI documentation tags, configuring authentication schemes, schema sources, namespace filtering, tag customization |
