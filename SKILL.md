@@ -154,6 +154,35 @@ SendWelcomeEmail.enqueue(user_id: 789, delay_until: Date.tomorrow.noon)
 Rage::Deferred.wrap(WelcomeMailer.new(user)).deliver
 ```
 
+Failed tasks retry automatically up to 20 times using Rage's default backoff: `(attempt**4) + 10 + (rand(15) * attempt)` seconds.
+
+Customize retries per task:
+
+```ruby
+class ProcessPayment
+  include Rage::Deferred::Task
+  max_retries 5
+
+  def self.retry_interval(exception, attempt:)
+    case exception
+    when TemporaryNetworkError then 10 # retry in 10 seconds
+    when InvalidDataError then false # don't retry
+    else super # use Rage's default backoff
+    end
+  end
+end
+```
+
+Recurring tasks are configured centrally:
+
+```ruby
+Rage.configure do
+  config.deferred.schedule do
+    every 5.minutes, task: ClearCache
+  end
+end
+```
+
 **Middleware** for intercepting job lifecycle:
 
 ```ruby
