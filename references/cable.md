@@ -336,10 +336,10 @@ No configuration needed - Rage uses IPC (inter-process communication) automatica
 
 ### Multiple Servers
 
-Configure Redis Adapter in `config/cable.yml`:
+Configure Redis Adapter in `config/pubsub.yml`:
 
 ```yaml
-# config/cable.yml
+# config/pubsub.yml
 production:
   adapter: redis
   url: <%= ENV.fetch("REDIS_URL", "redis://localhost:6379") %>
