@@ -1,6 +1,6 @@
 # Rage SSE (Server-Sent Events)
 
-Use SSE for one-way server-to-client streaming over HTTP.
+Use `render sse:` for one-way server-to-client streaming over HTTP.
 
 ## Patterns
 
