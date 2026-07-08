@@ -113,7 +113,7 @@ Use `form_actions` for template-oriented or full-stack apps that render forms:
 
 ```ruby
 Rage.configure do
-  config.form_actions = true
+  config.router.form_actions = true
 end
 ```
 
@@ -123,5 +123,5 @@ With this enabled, `resources` and `resource` include the extra form-oriented ac
 
 - Use manual HTML rendering for one-off pages or small integrations.
 - Use `config.renderer` for reusable template systems like Phlex, Slim, or another view library.
-- Enable `config.form_actions = true` when building HTML CRUD flows with `new` and `edit` pages.
+- Enable `config.router.form_actions = true` when building HTML CRUD flows with `new` and `edit` pages.
 - Do not assume Rails route helpers exist; Rage still does not generate `*_path` and `*_url` helpers.

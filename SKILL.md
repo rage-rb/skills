@@ -58,7 +58,7 @@ Assume Rails-like defaults for common work, but verify edge behavior in Rage doc
 Important known differences:
 
 - Route helpers are not generated (`photos_path`, `photos_url` are unavailable).
-- `resources` / `resource` do not generate Rails-style `new` and `edit` actions unless `config.form_actions = true`.
+- `resources` / `resource` do not generate Rails-style `new` and `edit` actions unless `config.router.form_actions = true`.
 - Route constraints are host-only.
 - Wildcard routing is stricter (wildcard only at path end and unnamed).
 - `params` is a symbol-keyed Hash by default; Strong Parameters requires explicit `actionpack` setup.
