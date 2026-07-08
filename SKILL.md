@@ -255,6 +255,7 @@ Load only the file needed for the current task.
 | File | Load When |
 |---|---|
 | `references/events.md` | Designing domain events, subscriber architecture, deferred subscribers. Use in cases where domain events and event-driven architecture are beneficial. |
+| `references/daemon.md` | Implementing `Rage::Daemon` long-lived background processes, queue/stream listeners, supervised commands, daemon scope, cleanup, and adaptive recurring loops |
 | `references/cable.md` | Implementing WebSockets/channels/connection auth, stream topology, protocol choices, multi-server cable setup |
 | `references/sse.md` | Implementing server-sent events, choosing between enumerator streams, one-off updates, unbounded streams, buffering, and Redis-backed multi-server fan-out |
 | `references/rendering.md` | Rendering HTML/templates, configuring custom renderers like Phlex or Slim, and enabling Rails-like form actions for template-oriented apps |
