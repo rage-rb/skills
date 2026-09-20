@@ -89,20 +89,39 @@ end
 render phlex: GreetingComponent, name: params[:name]
 ```
 
-### Slim Example
+### ERB with Caching and Reloading
 
 ```ruby
-# config/application.rb
 Rage.configure do
-  config.renderer(:slim) do |template, **locals|
+  templates = {}
+
+  config.after_reload do
+    templates.clear
+  end
+
+  config.renderer(:erb) do |path|
     headers["content-type"] = "text/html"
-    Slim::Template.new("app/views/#{template}.slim").render(self, **locals)
+    templates[path] ||= ERB.new(
+      Rage.root.join("app", "views", "#{path}.html.erb").read
+    )
+
+    templates[path].result(binding)
   end
 end
 ```
 
+The cache avoids reparsing templates and is cleared automatically during development reloads.
+
+## Inertia.js
+
+Use the official [Inertia.js adapter for Rage](https://github.com/rage-rb/inertia-rage) to render Inertia responses:
+
 ```ruby
-render slim: "users/show", user: @user
+class PostsController < RageController::Inertia
+  def index
+    render inertia: "Posts/Index", props: { posts: current_user.posts }
+  end
+end
 ```
 
 ## Form-Oriented Apps
@@ -122,6 +141,7 @@ With this enabled, `resources` and `resource` include the extra form-oriented ac
 ## Practical Guidance
 
 - Use manual HTML rendering for one-off pages or small integrations.
-- Use `config.renderer` for reusable template systems like Phlex, Slim, or another view library.
+- Use `config.renderer` for reusable template systems like ERB, Phlex, or another view library.
+- Use `inertia-rage` for Inertia.js applications.
 - Enable `config.router.form_actions = true` when building HTML CRUD flows with `new` and `edit` pages.
 - Do not assume Rails route helpers exist; Rage still does not generate `*_path` and `*_url` helpers.
