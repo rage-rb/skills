@@ -97,9 +97,10 @@ end
 Document response payloads with `@response`.
 
 Preferred schema sources:
-1. [Alba](https://github.com/okuramasafumi/alba) serializers or Active Record models
-2. Shared refs in `config/openapi_components.yml`
-3. Inline schemas for very small payloads
+1. [Alba](https://github.com/okuramasafumi/alba) or [Blueprinter](https://github.com/procore-oss/blueprinter) serializers
+2. Active Record models
+3. Shared refs in `config/openapi_components.yml`
+4. Inline schemas for small payloads
 
 ### Inline Schema
 
@@ -141,7 +142,7 @@ Reference by JSON Pointer:
 # @response 404 #/components/schemas/Error
 ```
 
-### Alba / Model Auto-Generation
+### Alba / Blueprinter Auto-Generation
 
 ```ruby
 class UserSerializer
