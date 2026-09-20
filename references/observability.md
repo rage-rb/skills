@@ -84,6 +84,16 @@ end
 
 Tags appear as `[production][web]` (or `{ tags: ["production", "web"] }` for JSON logs) in log output.
 
+### Sensitive Data Redaction
+
+Use `config.log_redact_keys` to redact sensitive values from log context:
+
+```ruby
+Rage.configure do
+  config.log_redact_keys = [:password, :token, :secret]
+end
+```
+
 ### Request Log Enhancement
 
 Extend the built-in request completion log with custom data using `append_info_to_payload` in controllers:
@@ -177,6 +187,18 @@ User.create!(user_params)
 ## Telemetry
 
 Built-in span-based instrumentation for observing application behavior. Use telemetry to integrate with monitoring platforms, track performance metrics, debug production issues, or build custom observability solutions.
+
+### Server Capacity
+
+Use `Rage::Telemetry::Capacity.queued_connections` to detect whether the server is struggling to process the current load. For simple cases, report it periodically with `Rage::Telemetry.every`:
+
+```ruby
+Rage::Telemetry.every(1000) do
+  MyMetrics.gauge("server.queued_connections", Rage::Telemetry::Capacity.queued_connections)
+end
+```
+
+When exporting multiple values, prefer `Rage::Daemon`.
 
 ### Spans
 
