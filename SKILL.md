@@ -74,6 +74,14 @@ Important known differences:
 7. Use structured logs and telemetry handlers for observability.
 8. Use serializers instead of `as_json` to serialize objects to JSON.
 
+## Private APIs
+
+Rage methods and variables marked `@private` or named with a `__` prefix are private and may change or disappear at any time. When inspecting Rage's source, prefer public APIs. If a private API is necessary:
+
+1. Use it.
+2. Open an issue in [rage-rb/rage](https://github.com/rage-rb/rage/issues) describing the API and your use case.
+3. Mark the code as tech debt using project conventions, or add a tech debt comment with the current date and issue link.
+
 ## Controllers
 
 **Prefer RESTful resources:** instead of adding custom actions to existing controllers, extract them into dedicated resource controllers. For example, `UsersController#stats` should become `UserStatsController#index`.
