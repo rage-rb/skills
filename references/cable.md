@@ -65,6 +65,28 @@ end
 - `request` - The original HTTP request
 - `reject_unauthorized_connection` - Deny the connection
 
+### Server-Initiated Disconnects
+
+Opt in with `Rage::Cable::RemoteDisconnect`, then call `disconnect` on your connection class with one identifier. To match multiple criteria, define a composite identifier:
+
+```ruby
+class RageCable::Connection < Rage::Cable::Connection
+  include Rage::Cable::RemoteDisconnect
+
+  identified_by :current_user, :current_user_device
+
+  def connect
+    self.current_user = find_verified_user
+    return reject_unauthorized_connection unless current_user
+    self.current_user_device = [current_user, request.headers["Device-Id"]]
+  end
+end
+
+# Elsewhere in the app:
+RageCable::Connection.disconnect(current_user: User.last)
+RageCable::Connection.disconnect(current_user_device: [user, "device-123"])
+```
+
 ## Channels
 
 Channels handle subscriptions and messages for specific features:
