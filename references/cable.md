@@ -95,43 +95,24 @@ Channels handle subscriptions and messages for specific features:
 # app/channels/chat_channel.rb
 class ChatChannel < Rage::Cable::Channel
   def subscribed
-    room = Room.find(params[:room_id])
+    @room = Room.find(params[:room_id])
+    return reject unless current_user.member_of?(@room)
 
-    # Reject if user can't access this room
-    unless current_user.member_of?(room)
-      reject
-      return
-    end
-
-    # Attach to the stream for this room
-    stream_for room
+    stream_for @room
   end
 
   def unsubscribed
-    # Cleanup when client unsubscribes
     Rage.logger.info "User left chat", user_id: current_user.id
   end
 
   def receive(data)
-    # Handle incoming messages from client
-    room = Room.find(params[:room_id])
-    message = room.messages.create!(
-      user: current_user,
-      body: data["message"]
-    )
-
-    # Broadcast to all subscribers
-    self.class.broadcast_to(room, {
-      id: message.id,
-      user: current_user.name,
-      body: message.body,
-      created_at: message.created_at
-    })
+    message = @room.messages.create!(body: data["message"])
+    self.class.broadcast_to(@room, { user: current_user.name, body: message.body })
   end
 end
 ```
 
-**Two variants of streams (in order of preference):**
+**Two variants of streams:**
 1. Channel-specific streams:
   - Subscribe via `stream_for`, e.g. `stream_for(current_user)`
   - Broadcast via `Rage::Cable::Channel.broadcast_to`, e.g. `ChatChannel.broadcast_to(current_user, message)`
@@ -160,12 +141,6 @@ class ChatChannel < Rage::Cable::Channel
   # Client calls: channel.perform("mark_read", { message_id: 123 })
   def mark_read(data)
     Message.find(data["message_id"]).mark_read_by(current_user)
-  end
-
-  # Client has unsubscribed from the channel
-  def unsubscribed
-    room = Room.find(params[:room_id])
-    room.members.delete(current_user)
   end
 end
 ```
@@ -200,46 +175,7 @@ end
 
 ### From Anywhere in Your App
 
-```ruby
-# From controllers
-class MessagesController < ApplicationController
-  def create
-    message = Message.create!(message_params)
-
-    Rage::Cable.broadcast("chat_room_#{message.room_id}", {
-      id: message.id,
-      body: message.body,
-      user: current_user.name
-    })
-
-    render json: message
-  end
-end
-
-# From background jobs
-class NotifyUserJob
-  include Rage::Deferred::Task
-
-  def perform(user_id:, notification:)
-    Rage::Cable.broadcast("user_#{user_id}_notifications", notification)
-  end
-end
-
-# From event subscribers
-class BroadcastOrderUpdate
-  include Rage::Events::Subscriber
-  subscribe_to OrderShipped
-
-  def call(event)
-    order = Order.find(event.order_id)
-    Rage::Cable.broadcast("user_#{order.user_id}_orders", {
-      type: "order_shipped",
-      order_id: order.id,
-      tracking: event.tracking_number
-    })
-  end
-end
-```
+`Rage::Cable.broadcast` works anywhere in a Rage app without additional setup, including background jobs via `Rage::Deferred`. Broadcasting from outside Rage (e.g. Sidekiq) requires multi-server setup via `config/pubsub.yml`.
 
 ### Transmit to Current Connection Only
 
@@ -248,7 +184,6 @@ Use `transmit` to send messages only to the current connection (not broadcast):
 ```ruby
 class NotificationsChannel < Rage::Cable::Channel
   def subscribed
-    # Send unread count only to this connection
     transmit({
       type: "unread_count",
       count: current_user.unread_notifications.count
